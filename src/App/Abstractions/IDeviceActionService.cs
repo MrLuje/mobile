@@ -1,4 +1,5 @@
 ﻿using Bit.Core.Enums;
+using Bit.Core.Models;
 using Bit.Core.Models.View;
 using System.Threading.Tasks;
 
@@ -44,5 +45,8 @@ namespace Bit.App.Abstractions
         void OpenAccessibilityOverlayPermissionSettings();
         void OpenAutofillSettings();
         bool UsingDarkTheme();
+        void PromptInstallCertificate(byte[] cert);
+        ICertificateContainer LoadCertificateFromAlias(string alias);
+        Task<string> PickExistingCertificateForUserCredentials(string alias = null);
     }
 }

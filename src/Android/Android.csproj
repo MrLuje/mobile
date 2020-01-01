@@ -77,6 +77,12 @@
     <PackageReference Include="Portable.BouncyCastle">
       <Version>1.8.6.7</Version>
     </PackageReference>
+    <PackageReference Include="System.Net.Http">
+      <Version>4.3.4</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
+      <Version>28.0.0.3</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.Essentials">
       <Version>1.5.3.1</Version>
     </PackageReference>
@@ -101,6 +107,8 @@
     <Compile Include="Accessibility\Browser.cs" />
     <Compile Include="Accessibility\NodeList.cs" />
     <Compile Include="Accessibility\KnownUsernameField.cs" />
+    <Compile Include="AndroidCertificateContainer.cs" />
+    <Compile Include="AndroidHttpMessageHandler.cs" />
     <Compile Include="Autofill\AutofillHelpers.cs" />
     <Compile Include="Autofill\AutofillService.cs" />
     <Compile Include="Autofill\Field.cs" />
@@ -112,6 +120,7 @@
     <Compile Include="Effects\FixedSizeEffect.cs" />
     <Compile Include="Effects\SelectableLabelEffect.cs" />
     <Compile Include="Effects\TabBarEffect.cs" />
+    <Compile Include="HttpMessageHandler.cs" />
     <Compile Include="Push\FirebaseInstanceIdService.cs" />
     <Compile Include="Push\FirebaseMessagingService.cs" />
     <Compile Include="Receivers\ClearClipboardAlarmReceiver.cs" />

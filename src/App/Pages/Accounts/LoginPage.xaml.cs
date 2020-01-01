@@ -1,6 +1,7 @@
 ﻿using Bit.App.Models;
 using Bit.Core;
 using Bit.Core.Abstractions;
+using Bit.Core.Models.Domain;
 using Bit.Core.Utilities;
 using System;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Bit.App.Pages
     public partial class LoginPage : BaseContentPage
     {
         private readonly IMessagingService _messagingService;
+        private readonly IBroadcasterService _broadcasterService;
         private readonly IStorageService _storageService;
         private readonly LoginPageViewModel _vm;
         private readonly AppOptions _appOptions;
@@ -21,6 +23,7 @@ namespace Bit.App.Pages
             _messagingService = ServiceContainer.Resolve<IMessagingService>("messagingService");
             _messagingService.Send("showStatusBar", true);
             _appOptions = appOptions;
+            _broadcasterService = ServiceContainer.Resolve<IBroadcasterService>("broadcasterService");
             InitializeComponent();
             _vm = BindingContext as LoginPageViewModel;
             _vm.Page = this;
@@ -47,6 +50,20 @@ namespace Bit.App.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            _broadcasterService.Subscribe(nameof(LoginPage), async (message) =>
+            {
+                if(message.Command == "selectFileResult")
+                {
+                    FileSelected_InstallCertificate(message);
+                }
+                else if(message.Command == "installCertificateResult")
+                {
+                    if(await _vm.PickCertificate())
+                        await _vm.LoadCertificateAndLogin();
+                }
+            });
+
             await _vm.InitAsync();
             if (string.IsNullOrWhiteSpace(_vm.Email))
             {
@@ -56,6 +73,18 @@ namespace Bit.App.Pages
             {
                 RequestFocus(_masterPassword);
             }
+        }
+
+        private void FileSelected_InstallCertificate(Message message)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                var data = message.Data as Tuple<byte[], string>;
+                var fileData = data.Item1;
+                var fileName = data.Item2;
+
+                _vm.PromptInstallCertificate(fileData);
+            });
         }
 
         private async void LogIn_Clicked(object sender, EventArgs e)

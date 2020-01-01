@@ -1,4 +1,5 @@
-﻿using Bit.Core.Models.Domain;
+﻿using Bit.Core.Models;
+using Bit.Core.Models.Domain;
 using Bit.Core.Models.Request;
 using Bit.Core.Models.Response;
 using System;
@@ -43,6 +44,7 @@ namespace Bit.Core.Abstractions
         Task<TResponse> SendAsync<TRequest, TResponse>(HttpMethod method, string path,
             TRequest body, bool authed, bool hasResponse);
         void SetUrls(EnvironmentUrls urls);
+        void SetCertificateContainer(ICertificateContainer certificateContainer);
         Task<CipherResponse> PostCipherAttachmentAsync(string id, MultipartFormDataContent data);
         Task PostShareCipherAttachmentAsync(string id, string attachmentId, MultipartFormDataContent data,
             string organizationId);

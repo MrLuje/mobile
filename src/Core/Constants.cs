@@ -33,8 +33,10 @@
         public static string TriedV1Resync = "triedV1Resync";
         public static string EventCollectionKey = "eventCollection";
         public static string PreviousPageKey = "previousPage";
+        public static string TlsAuthCertificateAliasKey = "tlsAuthCertificateAlias";
         public const int SelectFileRequestCode = 42;
         public const int SelectFilePermissionRequestCode = 43;
         public const int SaveFileRequestCode = 44;
+        public const int InstallCertificateRequestCode = 45;
     }
 }

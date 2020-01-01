@@ -246,6 +246,10 @@ namespace Bit.Droid
                     return;
                 }
             }
+            else if (requestCode == Constants.InstallCertificateRequestCode && resultCode == Result.Ok)
+            {
+                _messagingService.Send("installCertificateResult");
+            }
         }
 
         protected override void OnDestroy()

@@ -98,6 +98,8 @@ namespace Bit.Droid
                 broadcasterService, () => ServiceContainer.Resolve<IEventService>("eventService"));
             var platformUtilsService = new MobilePlatformUtilsService(deviceActionService, messagingService,
                 broadcasterService);
+            var iHttpMessageHandler = new AndroidHttpsClientHandler();
+            var certificateService = new CertificateService(deviceActionService, mobileStorageService, () => ServiceContainer.Resolve<IApiService>("apiService"));
 
             ServiceContainer.Register<IBroadcasterService>("broadcasterService", broadcasterService);
             ServiceContainer.Register<IMessagingService>("messagingService", messagingService);
@@ -108,6 +110,8 @@ namespace Bit.Droid
             ServiceContainer.Register<IStorageService>("secureStorageService", secureStorageService);
             ServiceContainer.Register<IDeviceActionService>("deviceActionService", deviceActionService);
             ServiceContainer.Register<IPlatformUtilsService>("platformUtilsService", platformUtilsService);
+            ServiceContainer.Register<IHttpMessageHandler>("httpMessageHandler", iHttpMessageHandler);
+            ServiceContainer.Register<ICertificateService>("certificateService", certificateService);
 
             // Push
 #if FDROID
@@ -141,6 +145,7 @@ namespace Bit.Droid
             await ServiceContainer.Resolve<IStateService>("stateService").SaveAsync(
                 Constants.DisableFaviconKey, disableFavicon);
             await ServiceContainer.Resolve<IEnvironmentService>("environmentService").SetUrlsFromStorageAsync();
+            await ServiceContainer.Resolve<ICertificateService>("certificateService").SetCertificateContainerFromStorageAsync();
         }
     }
 }

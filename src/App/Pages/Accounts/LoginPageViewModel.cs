@@ -3,6 +3,7 @@ using Bit.App.Resources;
 using Bit.Core;
 using Bit.Core.Abstractions;
 using Bit.Core.Exceptions;
+using Bit.Core.Models;
 using Bit.Core.Utilities;
 using System;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace Bit.App.Pages
         private readonly IStorageService _storageService;
         private readonly IPlatformUtilsService _platformUtilsService;
         private readonly IStateService _stateService;
+        private readonly ICertificateService _certificateService;
 
         private bool _showPassword;
         private string _email;
@@ -35,6 +37,7 @@ namespace Bit.App.Pages
             _storageService = ServiceContainer.Resolve<IStorageService>("storageService");
             _platformUtilsService = ServiceContainer.Resolve<IPlatformUtilsService>("platformUtilsService");
             _stateService = ServiceContainer.Resolve<IStateService>("stateService");
+            _certificateService = ServiceContainer.Resolve<ICertificateService>("certificateService");
 
             PageTitle = AppResources.Bitwarden;
             TogglePasswordCommand = new Command(TogglePassword);
@@ -145,6 +148,39 @@ namespace Bit.App.Pages
                     LoggedInAction?.Invoke();
                 }
             }
+            catch(ApiExceptionTlsAuthRequired e)
+            {
+                if(!string.IsNullOrWhiteSpace(await GetCertificateAlias()))
+                {
+                    await this.LoadCertificateAndLogin();
+                }
+                else
+                {
+                    //TODO: proper resources
+                    var res = await _deviceActionService.DisplayAlertAsync("Auth failed", "A certificate is required to connect to this server", "Choose an installed certificate", "Install and use a new certificate", "Cancel");
+                    if(res == "Install and use a new certificate")
+                    {
+                        await _deviceActionService.HideLoadingAsync();
+                        await _deviceActionService.SelectFileAsync();
+                    }
+                    else if(res == "Choose an installed certificate")
+                    {
+                        await _deviceActionService.HideLoadingAsync();
+                        if(await this.PickCertificate())
+                            await this.LoadCertificateAndLogin();
+
+                    }
+                    else if(res == "Cancel")
+                    {
+                        await _deviceActionService.HideLoadingAsync();
+                    }
+                    else if(e?.Error != null)
+                    {
+                        await _platformUtilsService.ShowDialogAsync(e.Error.GetSingleMessage(),
+                            AppResources.AnErrorHasOccurred);
+                    }
+                }
+            }
             catch (ApiException e)
             {
                 await _deviceActionService.HideLoadingAsync();
@@ -154,6 +190,41 @@ namespace Bit.App.Pages
                         AppResources.AnErrorHasOccurred);
                 }
             }
+        }
+
+        private async Task<string> GetCertificateAlias()
+        {
+            return await _storageService.GetAsync<string>(Constants.TlsAuthCertificateAliasKey);
+        }
+
+        public async Task LoadCertificateAndLogin()
+        {
+            var success = await _certificateService.SetCertificateContainerFromStorageAsync();
+            if(success)
+            {
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    await this.LogInAsync();
+                });
+            }
+        }
+
+        public async Task<bool> PickCertificate()
+        {
+            try
+            {
+                return await _certificateService.PickAndSaveCertificate();
+            }
+            catch(System.Exception e)
+            {
+                await _platformUtilsService.ShowDialogAsync(e.Message, AppResources.AnErrorHasOccurred);
+                return false;
+            }
+        }
+
+        public void PromptInstallCertificate(byte[] fileData)
+        {
+            _deviceActionService.PromptInstallCertificate(fileData);
         }
 
         public void TogglePassword()
