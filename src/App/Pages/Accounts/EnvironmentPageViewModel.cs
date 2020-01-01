@@ -10,11 +10,13 @@ namespace Bit.App.Pages
     {
         private readonly IPlatformUtilsService _platformUtilsService;
         private readonly IEnvironmentService _environmentService;
+        private readonly ICertificateService _certificateService;
 
         public EnvironmentPageViewModel()
         {
             _platformUtilsService = ServiceContainer.Resolve<IPlatformUtilsService>("platformUtilsService");
             _environmentService = ServiceContainer.Resolve<IEnvironmentService>("environmentService");
+            _certificateService = ServiceContainer.Resolve<ICertificateService>("certificateService");
 
             PageTitle = AppResources.Settings;
             BaseUrl = _environmentService.BaseUrl;
@@ -45,6 +47,7 @@ namespace Bit.App.Pages
                 Icons = IconsUrl,
                 Notifications = NotificationsUrls
             });
+            await _certificateService.ResetSelectedCertificate();
 
             // re-set urls since service can change them, ex: prefixing https://
             BaseUrl = resUrls.Base;
