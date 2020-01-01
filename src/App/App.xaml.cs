@@ -37,6 +37,7 @@ namespace Bit.App
         private readonly IStorageService _storageService;
         private readonly IStorageService _secureStorageService;
         private readonly IDeviceActionService _deviceActionService;
+        private readonly ICertificateService _certificateService;
 
         private static bool _isResumed;
 
@@ -69,6 +70,7 @@ namespace Bit.App
                 "passwordGenerationService");
             _i18nService = ServiceContainer.Resolve<II18nService>("i18nService") as MobileI18nService;
             _deviceActionService = ServiceContainer.Resolve<IDeviceActionService>("deviceActionService");
+            _certificateService = ServiceContainer.Resolve<ICertificateService>("certificateService");
 
             Bootstrap();
             _broadcasterService.Subscribe(nameof(App), async (message) =>
@@ -245,6 +247,7 @@ namespace Bit.App
                 _collectionService.ClearAsync(userId),
                 _passwordGenerationService.ClearAsync(),
                 _vaultTimeoutService.ClearAsync(),
+                _certificateService.ResetSelectedCertificate(),
                 _stateService.PurgeAsync());
             _vaultTimeoutService.FingerprintLocked = true;
             _searchService.ClearIndex();
