@@ -818,6 +818,7 @@ namespace Bit.Droid.Services
                 new string[] { "RSA" },
                 null,
                 null,
+                -1,
                 alias
             );
             return result.Task;
